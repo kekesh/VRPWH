@@ -1,0 +1,26 @@
+\contentsline {section}{\numberline {1}Introduction}{3}{section.1}%
+\contentsline {subsection}{\numberline {1.1}Preliminaries}{3}{subsection.1.1}%
+\contentsline {subsection}{\numberline {1.2}Past Work}{4}{subsection.1.2}%
+\contentsline {section}{\numberline {2}Problem Definition}{5}{section.2}%
+\contentsline {subsection}{\numberline {2.1}Assumptions and Constraints}{5}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.2}Hardness}{7}{subsection.2.2}%
+\contentsline {section}{\numberline {3}Properties of Efficient Solutions}{8}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Bounds}{9}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Dominated Strategies}{9}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Undominated Strategies}{13}{subsection.3.3}%
+\contentsline {section}{\numberline {4}Heuristics}{15}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Baseline Heuristic}{15}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Look-ahead Heuristic}{15}{subsection.4.2}%
+\contentsline {subsubsection}{\numberline {4.2.1}Heuristic}{15}{subsubsection.4.2.1}%
+\contentsline {subsubsection}{\numberline {4.2.2}Demonstration}{16}{subsubsection.4.2.2}%
+\contentsline {subsection}{\numberline {4.3}Knapsack Look-ahead Heuristic}{19}{subsection.4.3}%
+\contentsline {subsubsection}{\numberline {4.3.1}Motivation}{19}{subsubsection.4.3.1}%
+\contentsline {subsubsection}{\numberline {4.3.2}Heuristic}{20}{subsubsection.4.3.2}%
+\contentsline {subsection}{\numberline {4.4}Neighbor-Expansion Heuristic}{21}{subsection.4.4}%
+\contentsline {subsubsection}{\numberline {4.4.1}Motivation}{21}{subsubsection.4.4.1}%
+\contentsline {subsubsection}{\numberline {4.4.2}Heuristic}{22}{subsubsection.4.4.2}%
+\contentsline {subsubsection}{\numberline {4.4.3}Demonstration}{23}{subsubsection.4.4.3}%
+\contentsline {subsection}{\numberline {4.5}Randomized-Expansion Heuristic}{25}{subsection.4.5}%
+\contentsline {subsubsection}{\numberline {4.5.1}Motivation}{25}{subsubsection.4.5.1}%
+\contentsline {subsubsection}{\numberline {4.5.2}Heuristic}{26}{subsubsection.4.5.2}%
+\contentsline {section}{\numberline {5}Computational Results}{27}{section.5}%

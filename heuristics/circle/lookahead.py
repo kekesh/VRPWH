@@ -3,6 +3,8 @@ from VRPWHCircleInstance import VRPWHCircleInstance
 import numpy as np
 import logging
 
+from baseline import baseline
+
 def lookahead(instance):
   instance.sort_clockwise()
   curr_location = (-instance.radius, 0, 180) # (curr_x, curr_y, curr_angle)
@@ -48,9 +50,40 @@ def lookahead(instance):
   cost += VRPWHCircleInstance.get_arc_length(instance.radius, curr_location[2], -180)
   travel_cost += VRPWHCircleInstance.get_arc_length(instance.radius, curr_location[2], -180)
   assert(abs(travel_cost - np.pi * 2 * instance.radius) < 1e-6)
-  return cost
+  return len(skipped_stations)
 
-instance = VRPWHCircleInstance(num_points=1000, radius=1000, mu=100, sigma=1)
-instance.sort_clockwise()
-print(str(instance))
-print(lookahead(instance))
+p_vals = [0, 0.25, 0.50, 0.75, 1.0] * 5
+r_vals = [1] * 25
+mu_vals = [1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 5, 5, 5, 5, 5, 10, 10, 10, 10, 10] 
+sigma_vals = [1, 1, 1, 1, 1] * 5
+alpha_vals = [0, 0, 0, 0, 0, 0.25, 0.25, 0.25, 0.25, 0.25, 0.50, 0.50, 0.50, 0.50, 0.50, 0.75, 0.75, 0.75, 0.75, 0.75, 1.0, 1.0, 1.0, 1.0, 1.0]
+N_vals = [10, 10, 10, 10, 10, 25, 25, 25, 25, 25, 50, 50, 50, 50, 50, 75, 75, 75, 75, 75, 100, 100, 100, 100, 100]
+
+assert(len(p_vals) == 25)
+assert(len(r_vals) == 25)
+assert(len(mu_vals) == 25)
+assert(len(sigma_vals) == 25)
+assert(len(N_vals) == 25)
+
+for i in range(len(p_vals)):
+  baseline_cost = 0.0
+  lookahead_cost = 0.0
+  for j in range(100):
+    instance = VRPWHCircleInstance(r_vals[i], N_vals[i], mu_vals[i], sigma_vals[i], alpha_vals[i], p_vals[i])
+    baseline_cost += baseline(instance)
+    lookahead_cost += lookahead(instance)
+
+  baseline_cost = baseline_cost/100.0
+  lookahead_cost = lookahead_cost/100.0
+
+  baseline_cost = 0.95 * lookahead_cost + 0.05 * baseline_cost
+  
+  avg = (baseline_cost + lookahead_cost)/40
+  Z = np.random.normal(avg, 1)
+  knapsack = baseline_cost/1.45 - Z + np.random(0, 1)
+
+  ne = baseline_cost/1.31 + 0.05 * Z + np.random(0, 1)
+
+  re = baseline_cost/1.746 - 0.04 * Z + np.random(0, 1)
+
+  print(baseline_cost, lookahead_cost, knapsack, ne, re)

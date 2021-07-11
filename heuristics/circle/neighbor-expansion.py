@@ -5,7 +5,6 @@ import numpy as np
 import logging
 
 def knapsack(instance, arr, start, neighbors):
-  print("Finding a best subset for " + str(start) + " with neighbors " + str(neighbors))
   res = []
   mini = 1e9
   x = len(neighbors)
@@ -16,6 +15,7 @@ def knapsack(instance, arr, start, neighbors):
         subset.append(neighbors[j])
 
     # see if subset works.
+    # by assumption, the subset is sorted in clockwise order.
     curr_angle = arr[start][2]
     travel_cost = 0
     service_cost = 0
@@ -24,7 +24,6 @@ def knapsack(instance, arr, start, neighbors):
       service_cost += arr[subset[j]][3]
       travel_cost += VRPWHCircleInstance.get_arc_length(instance.radius, curr_angle, arr[subset[j]][2])
       curr_angle = arr[subset[j]][2]
-
     travel_cost += VRPWHCircleInstance.get_arc_length(instance.radius, curr_angle, arr[start][2])
 
     if travel_cost + service_cost <= arr[start][3] and arr[start][3] - travel_cost - service_cost < mini:
@@ -37,14 +36,16 @@ def expansion(instance):
   instance.sort_clockwise()
   A = instance.points
   cost, remaining = 0, 0
+
+  # count the total number of service stations that the helping agent can service
   for i in range(len(A)):
     remaining += A[i][4]
 
   max_idx = 0
   i = 0
   done = set()
+
   while remaining > 0:
-    print("grabbing i = " + str(i) + " with remaining = " + str(remaining))
     (x, y, angle, service_time, agent_can_help) = A[i]
     if agent_can_help and i not in done:
       left_neighbors = []
@@ -97,5 +98,3 @@ def expansion(instance):
   return cost
 
 instance = VRPWHCircleInstance(num_points=10, radius=1, mu=1, sigma=1, alpha=0.50, p=1)
-print(str(instance))
-print("Expansion: " + str(expansion(instance)))
