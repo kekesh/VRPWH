@@ -27,8 +27,25 @@ class ServiceStop:
         theta = np.arccos(1 - d/(2 * r * r))
         return r * theta
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "({}, {})".format(self.x, self.y)
+
+    def __eq__(self, other) -> bool:
+        return np.isclose(self.x, other.x) and np.isclose(self.y, other.y) and np.isclose(self.service_time, other.service_time) and self.flag == other.flag
+
+    # Returns true iff self < other
+    # Clockwise ordering.
+    def __lt__(self, other) -> bool:
+        if self.y >= 0 and other.y < 0:
+            return True
+        if self.y < 0 and other.y >= 0:
+            return False
+        if self.y >= 0 and other.y >= 0:
+            return self.x <= other.x
+        if self.y <= 0 and other.y <= 0:
+            return self.x >= other.y
+        assert(False)
+        return False
 
 
 class VRPWHCircleInstance:
@@ -38,12 +55,28 @@ class VRPWHCircleInstance:
     self.service_stops = service_stops
     self.alpha = alpha
     self.p = p
+    assert(self.alpha >= 1)
+    assert(self.p >= 0 and self.p <= 1)
+    assert(self.num_points == len(self.service_stops))
 
   def __str__(self):
     rep = "Radius: {}, Alpha: {}, p: {}, N: {}".format(self.radius, self.alpha, self.p, self.num_points)
     for service_stop in self.service_stops:
         rep += "\n" + str(service_stop)
     return rep
+  
+  def add_service_stop(self, new_service_stop: ServiceStop) -> None:
+      self.service_stops.append(new_service_stop)
+      self.num_points += 1
+
+  def remove_service_stop(self, to_delete: ServiceStop) -> None:
+      try:
+          self.service_stops.remove(to_delete)
+          self.num_points -= 1
+      except:
+          # Item does not exist.
+          pass
+              
 
 def generate_random_service_stop(r, mu, sigma, p) -> ServiceStop:
     ''' 
