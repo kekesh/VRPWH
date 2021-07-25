@@ -58,20 +58,3 @@ def knapsack(instance: VRPWHCircleInstance):
 
         
     return cost
-
-
-# The knapsack heuristic should lookahead and service stop number 3, whereas the standard lookahead heuristic would service stop number 2.
-instance = VRPWHCircleInstance(
-                                num_points = 3,
-                                radius = 1,
-                                service_stops =
-                                [
-
-                                   ServiceStop(x = -math.sqrt(3) / 2, y = 1 / 2, service_time = 20, flag = True),
-                                   ServiceStop(x = -math.sqrt(2) / 2, y = math.sqrt(2) / 2, service_time = 8, flag = True),
-                                   ServiceStop(x = 0, y = 1, service_time = 10, flag = True)
-                                ],
-                                alpha = 1,
-                                p = 1
-                             )
-print(knapsack(instance))

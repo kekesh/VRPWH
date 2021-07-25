@@ -16,7 +16,6 @@ def test_knapsack_one():
                                        ServiceStop(x = 0, y = 1, service_time = 10, flag = True)
                                     ],
                                     alpha = 1,
-                                    p = 1
                                  )
 
     assert knapsack(instance) == 29 + 2 * math.pi
@@ -34,7 +33,6 @@ def test_knapsack_two():
                                        ServiceStop(x = 0, y = 1, service_time = 10, flag = False)
                                     ],
                                     alpha = 1,
-                                    p = 1
                                  )
     assert knapsack(instance) == 30 + 2 * math.pi
 
@@ -51,7 +49,6 @@ def test_knapsack_three():
                                        ServiceStop(x = 0, y = 1, service_time = 10, flag = False)
                                     ],
                                     alpha = 1,
-                                    p = 1
                                  )
     assert knapsack(instance) == 39 + 2 * math.pi
 
@@ -68,6 +65,5 @@ def test_knapsack_four():
                                        ServiceStop(x = 0, y = 1, service_time = 10, flag = True)
                                     ],
                                     alpha = 1,
-                                    p = 1
                                  )
     assert knapsack(instance) == 29 + 2 * math.pi

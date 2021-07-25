@@ -98,14 +98,14 @@ def test_instance_servicestops_sort_four():
 # Verify that adding a new service stop increments the total number of service stops.
 def test_add_service_stop():
     service_stops = [ServiceStop(x = 1, y = 0, service_time = 5, flag = False), ServiceStop(x = 0, y = -1, service_time = 5, flag = False), ServiceStop(x = 0, y = 1, service_time = 5, flag = False), ServiceStop(x = -1, y = 0, service_time = 5, flag = False)]
-    instance = VRPWHCircleInstance(len(service_stops), 1, service_stops, 1, 1)
+    instance = VRPWHCircleInstance(len(service_stops), 1, service_stops, 1)
     assert instance.num_points == 4
     instance.add_service_stop(ServiceStop(x = 1, y = 0, service_time = 5, flag = True))
     assert instance.num_points == 5
 
 def test_remove_service_stop():
     service_stops = [ServiceStop(x = 1, y = 0, service_time = 5, flag = False), ServiceStop(x = 0, y = -1, service_time = 5, flag = False), ServiceStop(x = 0, y = 1, service_time = 5, flag = False), ServiceStop(x = -1, y = 0, service_time = 5, flag = False)]
-    instance = VRPWHCircleInstance(len(service_stops), 1, service_stops, 1, 1)
+    instance = VRPWHCircleInstance(len(service_stops), 1, service_stops, 1)
 
     # This service stop doesn't exist.
     instance.remove_service_stop(ServiceStop(x = 0, y = -2, service_time = 5, flag = False))

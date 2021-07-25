@@ -15,7 +15,6 @@ def test_lookahead_one():
                                    ServiceStop(x = 0, y = -1, service_time = 20, flag = True)
                                 ],
                                 alpha = 1,
-                                p = 1
                              )
     assert np.isclose(lookahead(instance), 27 + 2 * np.pi)
 
@@ -32,7 +31,6 @@ def test_lookahead_two():
                                    ServiceStop(x = 0, y = -1, service_time = 20, flag = False)
                                 ],
                                 alpha = 1,
-                                p = 1
                              )
     assert np.isclose(lookahead(instance), 28 + 2 * np.pi)
 
@@ -49,6 +47,5 @@ def test_lookahead_three():
                                    ServiceStop(x = 0, y = -1, service_time = 20, flag = False)
                                 ],
                                 alpha = 1,
-                                p = 1
                              )
     assert np.isclose(lookahead(instance), 27 + 2 * np.pi)

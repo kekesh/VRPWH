@@ -49,14 +49,12 @@ class ServiceStop:
 
 
 class VRPWHCircleInstance:
-  def __init__(self, num_points, radius, service_stops, alpha, p):
+  def __init__(self, num_points, radius, service_stops, alpha):
     self.num_points = num_points
     self.radius = radius
     self.service_stops = service_stops
     self.alpha = alpha
-    self.p = p
     assert(self.alpha >= 1)
-    assert(self.p >= 0 and self.p <= 1)
     assert(self.num_points == len(self.service_stops))
 
   def __str__(self):
@@ -107,4 +105,4 @@ def generate_random_vrpwh_instance(num_points, radius, mu, sigma, alpha, p) -> V
     service_stops = []
     for _ in itertools.repeat(None, num_points):
         service_stops.append(generate_random_service_stop(radius, mu, alpha, p))
-    return VRPWHCircleInstance(num_points, radius, service_stops, alpha, p)
+    return VRPWHCircleInstance(num_points, radius, service_stops, alpha)
