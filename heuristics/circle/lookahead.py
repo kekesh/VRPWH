@@ -13,6 +13,7 @@ def lookahead(instance: VRPWHCircleInstance):
     cost = 2 * math.pi * instance.radius
 
     truck_location = 0
+    alpha = instance.alpha
 
     while truck_location != instance.num_points:
         # Now processing service stop #[truck_location]
@@ -24,7 +25,7 @@ def lookahead(instance: VRPWHCircleInstance):
         stops_left = instance.num_points - truck_location - 1
         cumulative_service_cost, trying = 0, 1
         while trying != stops_left + 1:
-            distance_cost = ServiceStop.distance(truck_service_stop, instance.service_stops[trying + truck_location], instance.radius)
+            distance_cost = alpha * ServiceStop.distance(truck_service_stop, instance.service_stops[trying + truck_location], instance.radius)
             if instance.service_stops[trying + truck_location].flag:
                 cumulative_service_cost += instance.service_stops[trying + truck_location].service_time
             if idle_time >= distance_cost + cumulative_service_cost:

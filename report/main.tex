@@ -6,6 +6,7 @@
 \usepackage{tkz-euclide}
 \usepackage{listings}
 \usepackage{color}
+\usepackage{caption}
 \usepackage{setspace}
 \usepackage{float}
 \usepackage{braket}
@@ -30,8 +31,6 @@
 \usetikzlibrary{positioning}  %                 ...positioning nodes
 \usetikzlibrary{arrows}       %                 ...customizing arrows
 \setlength\parindent{0pt}
-
-
 \newcounter{casenum}
 \newenvironment{caseof}{\setcounter{casenum}{1}}{\vskip.5\baselineskip}
 
@@ -46,26 +45,25 @@
 \tableofcontents
 \newpage
 
-
 \section{Introduction}
 \subsection{Preliminaries}
-National postal services seek to minimize the makespan of their deliveries by designing optimal routes for their vehicles. The \textit{vehicle routing problem} (VRP) is an optimization problem in operations research in which one seeks to find an optimal set of routes for a fleet of vehicles. Vehicles spend time travelling to predefined service stops and spend a predefined amount of time at the service stop to satisfy a customers' demands. Variants of the vehicle routing problem seek to minimize differing objective functions such as the sum of the route lengths or the makespan of the routes. \\
+National postal services seek to minimize the makespan of their deliveries by designing optimal routes for their vehicles. The \textit{vehicle routing problem} (VRP) is an optimization problem in operations research in which one seeks to find an optimal set of routes for a fleet of vehicles. Vehicles spend time traveling to predefined service stops and spend a predefined amount of time at each service stop to satisfy a customer's demands. Variants of the vehicle routing problem seek to minimize differing objective functions such as the sum of the route lengths or the makespan of the routes. \\
 
-In this paper, we explore a variant of the vehicle routing problem --- the \textit{vehicle routing problem with a helper} (VRPWH). Instead of having a fleet of vehicles, this problem studies the case in which a single truck driver and a helping agent work together to provide service at a set of service stops. More precisely, the VRPWH problem has a single \textit{truck driver} that drives a \textit{delivery truck}. The truck driver works with a \textit{helping agent} that can either ride in the delivery truck with the truck driver or travel by foot by themselves. The driver of the delivery truck and the helping agent seek to visit and service a set of predefined service stops $S$ along a long path. We impose the additional the constraint that the helping agent walks at a constant factor $\alpha$ slower than the delivery truck. That is, if the delivery truck travels at a speed of $v$, then the helping agent walks at a speed of $\frac{v}{\alpha}$. Furthermore, we impose the additional constraint that the helping agent is only permitted to service a fixed subset $S' \subseteq S$ of service stops that is known ahead of time. \\ % reword
+In this paper, we explore a variant of the vehicle routing problem --- the \textit{vehicle routing problem with a helper} (VRPWH). Instead of having a fleet of vehicles, this problem studies the case in which a single truck driver and a helping agent (a human or robot) work together to provide service at a set of service stops. More precisely, the VRPWH problem has a single \textit{truck driver} who drives a \textit{delivery truck}. The truck driver works with a \textit{helping agent} that can either ride in the delivery truck with the truck driver or travel by foot by themselves. The driver of the delivery truck and the helping agent seek to visit and service a set of predefined service stops $S$ along a long path. We impose the additional constraint that the helping agent walks at a constant factor $\alpha$ slower than the delivery truck. That is, if the delivery truck travels at a speed of $v$, then the helping agent walks at a speed of $\frac{v}{\alpha}$. Furthermore, we impose the additional constraint that the helping agent is only permitted to service a fixed subset $S' \subseteq S$ of service stops that is known ahead of time. \\ % reword
 
 We explore a few well-performing heuristics and metaheuristics for the problem at hand. Although this paper focuses on the case in which there is exactly one helping agent, the heuristics discussed in this report can easily be generalized to two or more helping agents.
 
 \subsection{Past Work}
-In $2008$, [1] proposed an idea about having a helper dispatch tool for UPS's delivery system. The authors delineate how the decision tool could have a direct impact on savings while also providing a more efficient delivery solution. However, the authors do not mention any routing decisions that can be applied in practice.  \\
+In $2008$, [1] Rhodes et al. proposed an idea about having a helper dispatch tool for UPS's delivery system. The authors delineate how the decision tool could have a direct impact on savings while also providing a more efficient delivery solution. However, the authors do not mention any routing decisions that can be applied in practice.  \\
 
-In $2017$, [2] introduced the dependent driver helper dispatching problem (DHDP), a related problem that ``had never been studied before." The DHDP problem is similar to the vehicle routing problem problem: it seeks to minimize the cost required to service a set of customers with the assistance of a helper. With the assistance of a helper, the driver can share the delivery workload. Furthermore, the DHDP problem is similar to the VRPWH problem as both problems impose the constraint that the helping agent cannot move on its own. However, the DHDP problem differs from the VRPWH problem in that the helping agent is less efficient at providing service to service stops than the truck driver. This is not the case in the VRPWH problem: the truck driver and the helping agent require the same amount of time to provide service at a fixed service stop. The DHDP problem also differs in that the demands of a service stop can be split among both the primary driver and the helper. This is not permitted in the VRPWH problem --- the truck driver or the helping agent must spend an uninterrupted amount of time to finish providing service at a service stop. Finally, the author of [2] only presents a single heuristic for the DHDP problem in general case. In this report, we provide several heuristics specialized for the case in which the underlying graph resembles a circular path.
+In $2017$, [2] Lu introduced the dependent driver helper dispatching problem (DHDP), a related problem that ``had never been studied before." The DHDP problem is similar to the vehicle routing problem problem: It seeks to minimize the cost required to service a set of customers with the assistance of a helper. The driver and helper can share the delivery workload. Furthermore, the DHDP problem is similar to the VRPWH problem as both problems impose the constraint that the helping agent cannot move on its own. However, the DHDP problem differs from the VRPWH problem in that the helping agent is less efficient at providing service to service stops than the truck driver. This is not the case in the VRPWH problem in which the truck driver and the helping agent require the same amount of time to provide service at a fixed service stop. The DHDP problem also differs in that the demands at a service stop can be split among both the primary driver and the helper. This is not permitted in the VRPWH problem --- the truck driver or the helping agent must spend an uninterrupted amount of time to finish providing service at a service stop. Finally, Lu [2] only presents a single heuristic for the DHDP problem in the general case. In our paper, we provide several heuristics specialized for the case in which the underlying tour resembles a circle.
 
 
 \section{Problem Definition}
 \subsection{Assumptions and Constraints}
-Consider a mail route with a vehicle that makes numerous stops along a path. At each stop, the mail carrier exits the vehicle and delivers mail to a set of customers clustered along a closed walk on foot. After delivering the mail, the mail carrier returns to their vehicle and continues along the path. Once the truck driver and the helping agent have finished servicing all of the customers, they must return to their initial starting point. \\ % Reword.
+Consider a mail route with a vehicle that makes numerous stops along a path. At each stop, the mail carrier exits the vehicle and delivers mail to a set of customers clustered along a closed walk on foot. After delivering the mail, the mail carrier returns to his vehicle and continues along the path. Once the truck driver and the helping agent have finished servicing all of the customers, they must return to their initial starting point. \\ % Reword.
 
-In this problem, we seek to find the minimum time required to satisfy a set of customers' demands and return back to the starting point with the assistance of a helping agent. \\
+In this problem, we seek to find the minimum time required to satisfy customers demands and return to the starting point with the assistance of a helping agent. \\
 
 \noindent We can model the problem by representing the $n$ service stops as points $p_1, p_2, \ldots, p_n$ on a circular path in the real plane. With this circular representation, an instance of the VRPWH problem is fully defined by the following parameters:
 
@@ -74,7 +72,7 @@ In this problem, we seek to find the minimum time required to satisfy a set of c
     \item A set of service stops $S = \{p_1, \ldots, p_n\}$, where $p_i$ denotes the location of the $i^{\text{th}}$ service stop.
     \item A time function $t : S \mapsto \mathbb{R}$, which maps each service stop to the number of time units required to service the customer at that stop.
     \item A parameter $\alpha$ used to describe the factor by which the helping agent's walking speed is slower than the truck driver's driving speed. In other words, if the truck drives at a speed $v$, then the helping agent's walking speed is $v/\alpha$.
-    \item A subset $S' \subseteq S$ of service stops describing where the helping agent can be utilized. If $S' = \emptyset$, then the helping agent cannot be used whatsoever. Conversely, if $S' = S$, we can employ the helping agent at any service stop. 
+    \item A subset $S' \subseteq S$ of service stops describing where the helping agent can be utilized. If $S' = \emptyset$, then the helping agent cannot be used at all. Conversely, if $S' = S$, we can employ the helping agent at any service stop. 
 \end{enumerate}
 
 
@@ -86,11 +84,11 @@ We impose the following additional constraints:
     \item The truck in which the truck driver and the helping agent begin in starts at the point $p_0 = (-r, 0)$. 
     % \item The helping agent can walk to different service stops on its own. That is, it is not necessary for the helping agent to travel in the vehicle with the truck driver. However, walking is slower than driving by a factor of $\alpha$. In other words, if the truck drives at a speed $v$, then the helping agent's walking speed is $v/\alpha$.  
     % \item The helping agent might not be able to service a particular customer. For a fixed instance of the VRPWH problem, there is a fixed subset $S' \subseteq S$ of the service stops at which the helping agent can be utilized for service. This means that the truck driver must service the customers at every service stop in $S \setminus S'$. 
-    \item The process of serving a customer cannot be split. At every service stop $u \in S$, either the truck driver or the helping agent must spend exactly $t(u)$ uninterrupted time units and service the customer to completion. 
-    \item The truck that the truck driver drives can only move in one of two directions (clockwise or counterclockwise) but not both. On the other hand, the helping agent is able to walk in either direction.  
+    \item The process of serving a customer cannot be split. At every service stop $u \in S$, either the truck driver or the helping agent must spend exactly $t(u)$ uninterrupted time units servicing the customer to completion. 
+    \item The truck that the truck driver drives can only move in one of two directions (clockwise or counterclockwise) but not both. We assume a one-way street. On the other hand, the helping agent is able to walk in either direction.  
 \end{enumerate}
 
-An example of an instance of the VRPWH problem with parameter $r = 1$ is depicted below:
+An example of an instance of the VRPWH problem with parameter $r = 1$ is depicted in Figure 1: 
 
 % Figure
 \begin{figure}[H]
@@ -120,8 +118,6 @@ For notational convenience, we define the following functions:
 \end{enumerate}
 
 
-
-
 \iffalse
 Another interesting situation is when the vehicle's route is a line. We can model this situation by having the vehicle start at a single point on the real number line. Service stops are scattered along the number line. The vehicle travels towards the end of the number line while servicing some subset of the customers. Afterwards, it travels back to where it started on the number line, possibly servicing a different subset of customers on its way back. \\
 
@@ -137,27 +133,27 @@ The VRPWH Problem is at least NP-hard.
 \begin{proof}
 Consider an instance of the $\mathsf{PARTITION}$ problem in which we are given a multiset of positive integers $S = \{a_1, \ldots, a_n\}$, and we are tasked with deciding whether or not $S$ can be partitioned into two subsets $S_1$ and $S_2$ such that the sum of the numbers in $S_1$ equals that of $S_2$. It is well-known that $\mathsf{PARTITION}$ is an NP-Hard problem. \\ 
 
-We will demonstrate that the VRPWH Problem on a Circle is also NP-hard by reducing an arbitrary instance of $\mathsf{PARTITION}$ to an instance of the VRPWH problem on a circle. \\
+We will demonstrate that the VRPWH on a Circle is also NP-hard by reducing an arbitrary instance of $\mathsf{PARTITION}$ to an instance of the VRPWH on a Circle. \\
 
-Consider an instance of $\mathsf{PARTITION}$ in which we are provided with a multiset of positive integers $S = \{a_1, \ldots, a_n\}$. We wish to determine whether $S$ can be decomposed into the disjoint union of two multisubsets $S_1$ and $S_2$ such that $\sum_{a_i \in S_1} a_i = \sum_{a_j \in S_2} a_j$. We construct an instance of the VRPWH on a Circle problem whose optimal solution will yield such a partitioning. \\
+Consider an instance of $\mathsf{PARTITION}$ in which we are provided with a multiset of positive integers $S = \{a_1, \ldots, a_n\}$. We wish to determine whether $S$ can be decomposed into the disjoint union of two multisubsets $S_1$ and $S_2$ such that $\sum_{a_i \in S_1} a_i = \sum_{a_j \in S_2} a_j$. We construct an instance of the VRPWH on a Circle whose optimal solution will yield such a partitioning. \\
 
-Construct an instance of the VRPWH on a Circle problem in which the underlying circle has radius $r$, and we have $n$ service stops with service times $a_1, \ldots, a_n$. In the limit as $r \to 0$, the time required to go around the circle approaches zero. Furthermore, as $\alpha \to 0$, the helping agent's walking speed approaches that of the truck driver's driving speed. In other words, there is no advantage in having the helping agent dropped off at the service stops it visits over having the helping agent walking to that service stop on its own. \\
+Construct an instance of the VRPWH on a Circle in which the underlying circle has radius $r$, and we have $n$ service stops with service times $a_1, \ldots, a_n$. In the limit as $r \to 0$, the time required to go around the circle approaches zero. Furthermore, as $\alpha \to 1$, the helping agent's walking speed approaches that of the truck driver's driving speed. In other words, there is no advantage in having the helping agent dropped off at the service stops it visits over having the helping agent walking to that service stop on its own. \\
 
-Thus, an optimal solution to such an instance of the VRPWH on a Circle problem becomes one in which the customers' demands are divided evenly. In other words, if $T_1$ denotes the time that the truck driver spends servicing customers and $T_2$ denotes the time that the helping agent spends servicing customers, then an optimal solution to the VRPWH on a Circle instance minimizes the quantity $|T_1 - T_2|$. By definition, the two multisubsets of $S$ that attain the sums $T_1$ and $T_2$ form an optimal solution to the corresponding $\mathsf{PARTITION}$ instance. 
+Thus, an optimal solution to such an instance of the VRPWH on a Circle becomes one in which the customers' demands are divided evenly. In other words, if $T_1$ denotes the time that the truck driver spends servicing customers and $T_2$ denotes the time that the helping agent spends servicing customers, then an optimal solution to the VRPWH on a Circle instance minimizes the quantity $|T_1 - T_2|$. By definition, the two multisubsets of $S$ that attain the sums $T_1$ and $T_2$ form an optimal solution to the corresponding $\mathsf{PARTITION}$ instance. 
 \end{proof}
 
 \section{Properties of Efficient Solutions}
-When designing efficient heuristics for the VRPWH problem, we take several observations into account. First, we present a few loose upper bounds for the problem at hand. Next, we several strategies that are weakly dominated (i.e., there is always another course of action that is at least as good as that strategy). \\
+When designing efficient heuristics for the VRPWH on a Circle, we take several observations into account. First, we present a few loose upper bounds for the problem at hand. Next, we introduce several strategies that are weakly dominated (i.e., there is always another course of action that is at least as good as that strategy). \\
 
-By taking these bounds and dominated strategies into consideration, we can significantly reduce our search space for an efficient solution. 
+By taking these bounds and dominated strategies into consideration, we can significantly reduce the search space for an efficient solution. 
 
 \subsection{Bounds}
 
 \begin{proposition}
-Consider an instance of the VRPWH Problem on a Circle in which the underlying circle has radius $r$. Let the $n$ service stops be $a_1, \ldots, a_n$ with respective service times $t(a_1), t(a_2), \ldots, t(a_n)$. No solution to the VRPWH problem will take less than $2\pi r + \frac{1}{2}\sum_{i} t(a_i)$ time.
+Consider an instance of the VRPWH on a circle in which the underlying circle has radius $r$. Let the $n$ service stops be $a_1, \ldots, a_n$ with respective service times $t(a_1), t(a_2), \ldots, t(a_n)$. No solution to the VRPWH will take less than $2\pi r + \frac{1}{2}\sum_{i} t(a_i)$ time.
 \end{proposition}
 \begin{proof}
-If the truck driver were to service every customer by themselves, they would spend a total of $\sum_{i} t(a_i)$ time. However, if this process were fully parallelized with the helping agent (i.e., for every time unit spent by the truck driver servicing a customer, the helping agent also spends a time unit servicing a customer), they would spend a total of $\frac{1}{2} \sum_{i} t(a_i)$ time units. This does not any travel costs, which can only make this number increase. In particular, one can note that the travel costs will always be \textit{at least} $2\pi r$ as the truck driver can only move in one direction meaning that it must go around the circle at least once. Thus, we conclude that no solution to an instance of the VRPWH problem will ever take less than $2\pi r + \frac{1}{2}\sum_{i} t(a_i)$ time. 
+If the truck driver were to service every customer by himself, he would spend a total of $\sum_{i} t(a_i)$ time. However, if this process were fully parallelized with the helping agent (i.e., for every time unit spent by the truck driver servicing a customer, the helping agent also spends a time unit servicing a customer), they would spend a total of $\frac{1}{2} \sum_{i} t(a_i)$ elapsed time units. This does not include any travel costs, which can only make this number increase. In particular, one can note that the travel costs will always be \textit{at least} $2\pi r$ as the truck driver can only move in one direction meaning that it must go around the circle at least once. Thus, we conclude that no solution to an instance of the VRPWH on a circle will ever take less than $2\pi r + \frac{1}{2}\sum_{i} t(a_i)$ time. 
 \end{proof}
 
 With this result in mind, we seek to find efficient heuristics and results that will allow us to approximate an optimal solution in a computationally feasible manner.
@@ -165,19 +161,18 @@ With this result in mind, we seek to find efficient heuristics and results that 
 
 \subsection{Dominated Strategies}
 
-
 \begin{proposition}
 [Dominated Strategies: Helping Agent Idleness]
-It is never advantageous for the helping agent to remain idle. For each solution in which the helping agent remains idle, there is a corresponding solution that can only improve upon the initial solution in which the helping agent always spends its time moving (possibly in the truck) or servicing a customer.
+It is never advantageous for the helping agent to remain idle. For each solution in which the helping agent remains idle, there is a corresponding solution that can possibly upon the initial solution in which the helping agent always spends his time moving (possibly in the truck) or servicing a customer.
 \end{proposition}
 \begin{proof}
-Consider an instance of the VRPWH problem. Let $\mathsf{IDLE}$ denote a feasible solution in which the helping agent remains idle for a non-zero period of time. We will construct a new solution $\mathsf{SOL}$ that performs at least as well as $\mathsf{IDLE}$ in which the helping agent remains idle for exactly zero time units. \\
+Consider an instance of the VRPWH on a Circle. Let $\mathsf{IDLE}$ denote a feasible solution in which the helping agent remains idle for a non-zero period of time. We will construct a new solution $\mathsf{SOL}$ that performs at least as well as $\mathsf{IDLE}$ in which the helping agent remains idle for exactly zero time units. \\
 
-Consider an arbitrary point in time in $\mathsf{IDLE}$ in which the helping agent remains idle. Let $p_k$ be the next point (either a service stop or the starting point) that the helping agent will visit. We consider two collectively exhaustive cases:
+Consider an arbitrary point in time in $\mathsf{IDLE}$ in which the helping agent remains idle. Let $p_k$ be the next point (either a service stop or the starting point) that the helping agent will visit. We consider two collectively exhaustive cases (the location of the truck driver does not matter):
 
 \begin{enumerate}
-    \item The helping agent will walk to $p_k$ on its own. In this case, it is clearly disadvantageous to remain idle. By assumption, the helping agent is not already servicing a customer. Moreover, $p_k$ is the next service stop (or initial point) that the helping agent will visit. By removing the idle time and instead starting to walk to $p_k$ immediately, we obtain $\mathsf{SOL}$, which improves upon $\mathsf{IDLE}$ by exactly the time that the helping agent remained idle before starting to walk to $p_k.$  
-    \item The helping agent will be dropped off at $p_k$ by the truck. In this case, we can construct $\mathsf{SOL}$ by removing the idle time of the helping agent and instead have the helping agent walk towards the truck. This is always possible because the helping agent is permitted to walk in both the clockwise and counterclockwise direction. Furthermore, this solution can only improve upon $\mathsf{IDLE}$ due to the inequality $\alpha \leq 1$.  
+    \item The helping agent will walk to $p_k$ on his own. In this case, it is clearly disadvantageous to remain idle. By assumption, the helping agent is not already servicing a customer. Moreover, $p_k$ is the next service stop (or initial point) that the helping agent will visit. By removing the idle time and instead starting to walk to $p_k$ immediately, we obtain $\mathsf{SOL}$, which improves upon $\mathsf{IDLE}$ by exactly the time that the helping agent remained idle before starting to walk to $p_k.$  
+		\item The helping agent will be dropped off at $p_k$ by the truck. In this case, we can construct $\mathsf{SOL}$ by removing the idle time of the helping agent and instead have the helping agent walk towards the truck. This is always possible because the helping agent is permitted to walk in both the clockwise and counterclockwise direction. Furthermore, this solution can only improve upon $\mathsf{IDLE}$ since the helping agent cannot walk faster than the truck (i.e., $\alpha \geq 1$).  
 \end{enumerate}
 
 \noindent There is one last special case that needs to be considered. Consider the case in which there is no ``next point" $p_k$ that the helping agent needs to visit. This can happen when the helping agent has finished servicing the subset of customers that it was assigned by a feasible solution, and it has returned to the initial starting point on its own. In this case, we can still construct $\mathsf{SOL}$ by having the helping agent walk in the direction that is opposite of the direction that the truck is moving in. Since the truck cannot move in both directions, we are guaranteed that the helping agent will encounter the truck. Once the helping agent encounters the truck, it should ride in the truck with the truck driver for the remainder of the solution. \\
@@ -185,13 +180,14 @@ Consider an arbitrary point in time in $\mathsf{IDLE}$ in which the helping agen
 This course of action cannot make the preceding feasible solution any worse since the makespan of the solution is already being limited by the time that the truck driver requires to return back to the starting point. 
 \end{proof}
 
-
+\iffalse
 \begin{proposition}
-It is never advantageous for the helping agent to walk in the direction opposite of which that the truck is moving in. 
+It is never advantageous for the helping agent to walk in the direction opposite to that which that the truck is moving in. 
 \end{proposition}
 \begin{proof}
 TODO. 
 \end{proof}
+\fi
 
 The next proposition illustrates that it is only optimal for the helping agent to re-enter the truck at a service stop. 
 
@@ -245,7 +241,7 @@ With these parameters in mind, consider the following construction of a solution
     \item The truck driver and the helping agent begin at the point $(-1, 0)$, denoted by the solid black circle. They begin to travel in the clockwise direction. 
     \item Upon encountering the first service stop $p_1$, the helping agent is dropped off to service the customers at that station. The truck driver continues along its route in the clockwise direction until it reaches the second service stop, $p_2$. The truck driver services the customer at this second station. 
     \item By construction, we can come up with an instance of the VRPWH problem in which the truck driver and the helping agent finish servicing $p_1$ and $p_2$ at exactly the same time.  
-    \item If $r \gg 0$, it would take a notable amount of more time for the helping agent to travel to the next service stop on its own than if it were dropped off by the truck. Furthermore, it would be too costly for the truck driver to make a full lap around the circle to pick up the helping agent. Since the distance between $p_1$ and $p_2$ is relatively small, the merits of having the truck driver wait for the helping agent to arrive at $p_2$ are clear. 
+    \item If $r \gg 0$, it would take a notable amount of more time for the helping agent to travel to the next service stop on his own than if it were dropped off by the truck. Furthermore, it would be too costly for the truck driver to make a full lap around the circle to pick up the helping agent. Since the distance between $p_1$ and $p_2$ is relatively small, the merits of having the truck driver wait for the helping agent to arrive at $p_2$ are clear. 
 \end{itemize}
 \end{proof}
 
@@ -257,28 +253,22 @@ To begin our discussion, we introduce a baseline heuristic that does not utilize
 
 \begin{enumerate}
     \item The truck begins at the point $(-r, 0)$ with the truck driver and the helping agent in the truck. 
-    \item While at least one unvisited service stop exists, the two vehicles travel clockwise around the circle to the next unserviced service stop. The truck driver satisfies the demand at the service stop while the helping agent remains idle. 
+    \item While at least one unvisited service stop exists, the truck travels clockwise around the circle to the next unserviced service stop. The truck driver satisfies the demand at the service stop while the helping agent remains idle. 
 \end{enumerate}
 
-In a real-world setting, the baseline heuristic produces the cost of servicing all of the customers when we do not have the option to deploy the helper vehicle at all. It acts as a ``control" in our subsequent comparisons.  \\
-
-The method by which we can improve upon the baseline heuristic is by dispatching the helper vehicle at some service stop at which it is permitted and subsequently servicing some number of customers at service stops before returning to the helper vehicle. 
+The baseline heuristic represents the case in which we do not have the option to deploy the helping agent at all. It acts as a ``control" in our subsequent comparisons.  \\
 
 \subsection{Look-ahead Heuristic}
 \subsubsection{Heuristic}
-The next heuristic we will discuss is called the \vocab{look-ahead} heuristic. The look-ahead heuristic decreases the total time spent by attempting to serve future service stops with the primary vehicle while the helper vehicle stays behind to serve a service stop with a large demand. The heuristic is summarized below:
+The next heuristic we will discuss is called the \vocab{look-ahead} heuristic. The look-ahead heuristic decreases the total time spent by attempting to serve future service stops with the helping agent while the truck driver stays behind to serve a service stop with a large demand. The heuristic is summarized below:
 
 \begin{enumerate}
-    \item The principal and helper vehicles both start at $0$ on the underlying number line. 
-    \item While at least one unvisited service stop exists, the two vehicles travel together along the one-dimensional number line to the next unserved service stop $a_i$. There are now two cases to consider: 
-    \begin{enumerate}
-        \item If $a_i \not \in S'$, then we service the customers at the service stop immediately using the primary vehicle. In the meantime, the helper vehicle remains idle for $t(a_i)$ minutes as it cannot move on its own. 
-        \item If $a_i \in S'$, then we greedily exercise our option to dispatch the helper vehicle. In the meantime, we ``look ahead" with our primary vehicle, and we service as many service stops ahead of the current one as possible such that the helper vehicle's idle time does not increase at all. 
-    \end{enumerate}
+	\item The truck driver and helping agent both start at the point $(-r, 0)$ on the underlying circle. 
+  \item While at least one unvisited service stop exists, the truck travels to the next unserved service stop $a_i$. At $a_i$, we greedily exercise our option to have the truck driver service the customer at $a_i$. Meanwhile, the helping agent ``looks ahead," naively services as many service stops as possible, and returns to $a_i$ in such a way that the truck driver's idle time does not increase at all. 
 \end{enumerate}
 
 \subsubsection{Demonstration}
-Consider the following instance of the VRPWH Problem on a Circle with $r = 1$ and $\alpha = 0$ in which the locations of the service stops are marked with solid red dots. The starting location of the truck is the solid black dot. For the sake of simplicity, we assume the helping agent can be dispatched at any one of the four service stops. 
+Consider the following instance of the VRPWH on a Circle with $r = 1$ and $\alpha = 1$ in which the locations of the service stops are marked with solid red dots. The starting location of the truck is the solid black dot. For the sake of simplicity, we assume the helping agent can be dispatched at any one of the four service stops. 
 
 \begin{figure}[H]
 \centering
@@ -296,17 +286,17 @@ Consider the following instance of the VRPWH Problem on a Circle with $r = 1$ an
 \caption{Look-ahead Demonstration}
 \end{figure}
 
-There are three service stops depicted in the instance above: $a_1 = (0, 1), a_2 = (-\sqrt{2}/2, \sqrt{2}/2), a_3 = (\sqrt{2}/2, \sqrt{2}/2)$, and $a_4 = (0, -1)$. Suppose the service times are given by $t(a_1) = 5$, $t(a_2) = 2$,  $t(a_3) = 2$, and $t(a_4) = 20$.  Furthermore, suppose that the time required to move a single unit on the Euclidean plane is equal to one time unit. Thus, we spend a total of $2\pi$ time units travelling around the entire circle once. \\
+There are four service stops depicted in the instance above: $a_1 = (-\sqrt{2}/2, \sqrt{2}/2), a_2 = (\sqrt{2}/2, \sqrt{2}/2), a_3 = (1, 0), a_4 = (0, -1)$. Suppose the service times are given by $t(a_1) = 5$, $t(a_2) = 1$,  $t(a_3) = 2$, and $t(a_4) = 20$. Furthermore, suppose that the time required to move a single unit on the Euclidean plane is equal to one time unit. Thus, we spend a total of $2\pi$ time units traveling around the entire circle once. \\
 
-In this instance of the VRPWH on a Circle problem, the look-ahead heuristic would proceed as follows:
+In this instance of the VRPWH on a Circle, the look-ahead heuristic would proceed as follows:
 
 \begin{enumerate}
     \item The truck begins at the point $(-1, 0)$ with both the truck driver and the helping agent. 
-    \item The truck travels to the point $a_1$ at a cost of $\pi/3$ time units. Since $a_1$ can be serviced by the helping agent, we greedily exercise our option to dispatch the helping agent. 
-    \item While the helping agent spends $t(a_1) = 5$ uninterrupted time units servicing $a_1$, the truck driver travels $\pi/2$ units to $a_2$ in the truck, services it in two time units, travels $\pi/2$ units back to $a_1$, and waits for the helping agent to finish servicing $a_1$. That is, the truck driver ``looks ahead" to see if it can service future service stops while the helping agent stays behind servicing a different service stop. 
-    \item The helping agent and truck driver travel together in the truck to $a_3$ in a total of $5\pi/4$ time units. The helping agent services $a_3$ while the truck driver remains idle for $t(a_3) = 2$ time units. 
-    \item The helping agent and the truck driver travel together in the truck to $a_4$ in a total of $\pi/2$ time units. The helping agent services $a_4$ in $t(a_4) = 20$ time units while the truck driver remains idle. 
-    \item Finally, the helping agent and the truck driver travel together to their starting point in $\pi/2$ units. All customers' demands have been satisfied, so the heuristic terminates here.
+    \item The truck travels to the point $a_1$ at a cost of $\pi/4$ time units. We greedily exercise our option to dispatch the truck driver to provide service at this service stop. 
+		\item While the truck driver spends $t(a_1) = 5$ uninterrupted time units servicing $a_1$, the helping agent walks $\pi/2$ units to $a_2$, services it in one time unit, travels $\pi/2$ units back to $a_1$, and waits for the helping agent to finish servicing $a_1$. That is, the helping agent ``looks ahead" to see if it can service future service stops while the helping agent stays behind servicing a different service stop. Note that the helping agent cannot service both $a_2$ and $a_3$ without increasing the idle time of the truck driver, so it must return to $a_1$ immediately after servicing $a_2$.  
+    \item The truck driver and helping agent travel together to $a_3$ in a total of $5\pi/4$ time units. The truck driver services $a_3$. Since the helping agent cannot service $a_4$ and return to $a_3$ without increasing the idle time of the truck driver, the helping agent remains idle for $t(a_3) = 2$ time units. 
+    \item The helping agent and the truck driver travel together in the truck to $a_4$ in a total of $\pi/2$ time units. The truck driver services $a_4$ in $t(a_4) = 20$ time units while the helping agent remains idle. 
+    \item Finally, the truck driver and helping agent travel together to their starting point in $\pi/2$ units. All customers' demands have been satisfied, so the heuristic terminates here.
 \end{enumerate}
 
 \noindent The total cost of this solution is 
@@ -314,13 +304,14 @@ In this instance of the VRPWH on a Circle problem, the look-ahead heuristic woul
 \frac{\pi}{4} + 5 + \frac{3\pi}{4} + 2 + \frac{\pi}{2} + 20 + \frac{\pi}{2} = 27 + 2\pi. 
 \]
 
-Despite the straightforward manner of this heuristic, one can show that it performs well under certain circumstances. For example, it is easy to see that in an instance of the VRPWH on a Circle problem in which the circle has radius $r$ in which the time required to move one unit of distance is equal to one unit of time, the total time spent travelling will never exceed $2\pi r$. \\
+Despite the straightforward manner of this heuristic, computational results demonstrate that it performs well under certain circumstances. One can note that the total time spent traveling will never exceed $2\pi r$ provided that the time needed to move one unit of distance is equal to one unit of time. \\
 
-The lookahead   heuristic improves upon the baseline heuristic by exercising the option to service customers ahead of the one that the helping agent is servicing in such a way that the helping agents' idle time does not increase. Computational results demonstrate that the lookahead heuristic actually manages to exercise this ``lookahead" more than one might expect. For example, the table below demonstrates some of these results for varying radii when the number of service stops is fixed at $100$ and the distribution of demands follows a standard normal distribution. Note, however, that we do not permit negative service times. Thus, if the generated value is below $0$ or above $2\mu$, it is discarded and generated again. This procedure preserves symmetry and ensures demands are non-negative. \\
+The lookahead heuristic improves upon the baseline heuristic by exercising the option to service customers ahead of the one that the helping agent is servicing in such a way that the helping agents' idle time does not increase. Computational results demonstrate that the lookahead heuristic actually manages to exercise this ``lookahead" more than one might expect. For example, the table below demonstrates some of these results for varying radii when the number of service stops is fixed at $100$ and the distribution of demands follows a standard normal distribution. Note, however, that we do not permit negative service times. Thus, if the generated value is below $0$ or above $2\mu$, it is discarded and generated again. This procedure preserves symmetry and ensures demands are non-negative. \\
 
 \noindent The table below depicts the mean number of service stops skipped across $10^{6}$ random instances of the VRPWH on a Circle with a varying radii. In this instance, we assume that the helping agent can service any one service stop with probability $p = 0.50$.
 
 
+\renewcommand{\figurename}{Table}
 \begin{figure}[H]
 \centering
 \begin{tabular}{ |c|c|c||c| } 
@@ -342,15 +333,15 @@ The lookahead   heuristic improves upon the baseline heuristic by exercising the
 \end{tabular}
 \caption{Average Number of Skipped Stations in Randomly Generated VRPWH Instances with $p = 0.50$}
 \end{figure}
+% \renewcommand{\figurename}{Figure}
 
 As demonstrated in the table above, even when the ratio of the number of service stops to the circumference of the circle in the VRPWH instance is small, we can still improve upon the baseline heuristic more than one may expect.
 
 \subsection{Knapsack Look-ahead Heuristic}
 \subsubsection{Motivation}
-
 The next heuristic we present is the \vocab{knapsack look-ahead heuristic}, which we motivate through an example. \\ 
 
-Recall that the look-ahead heuristic greedily exercises the option to dispatch the helper vehicle whenever possible. The primary vehicle subsequently serves as many service stops beyond the current one by considering the service stops in order of their distance to the current service stop. However, this approach may have drawbacks. Consider an instance of the VRPWH on a Circle problem, and suppose the following represents a small segment of the circle (curvature is not depicted here): 
+Recall that the look-ahead heuristic greedily exercises the option to utilize the truck driver at a service stop whenever possible. The helping agent subsequently serves as many service stops beyond the current one by considering the service stops by considering them in order of their distance to the current service stop. However, this approach may have drawbacks. Consider an instance of the VRPWH on a Circle, and suppose the diagram following represents a small segment of the circle (the curvature of the circle is not depicted here): 
 
 \begin{figure}[H]
   \centering
@@ -364,35 +355,35 @@ Recall that the look-ahead heuristic greedily exercises the option to dispatch t
   \caption{Knapsack Look-ahead Example}
 \end{figure}
 
-\noindent Once again, for simplicity, we assume that the helper vehicle is allowed to be dispatched at any of the three service stops. Suppose the time required to satisfy each service stop's demands is given by $t(0) = 10, t(1) = 1,$ and $t(2) = 7$. \\
+\noindent For simplicity, assume that the helping agent is allowed to be dispatched at any of the three service stops. Suppose that the time required to satisfy each service stop's demands is given by $t(0) = 10, t(1) = 1,$ and $t(2) = 7$. \\
 
-The look-ahead heuristic would dispatch the helper vehicle at $0$. While the helper vehicle serves this service stop, the primary vehicle would travel to $1$, service it, and return. The primary and helper vehicles would then travel together to $2$, and the primary vehicle would service it while the helper vehicle remains idle. The total cost of the look-ahead heuristic in this instance is $t(0) + 2 + t(2) = 19$ time units. \\
+The look-ahead heuristic would dispatch the truck driver vehicle at $0$. While the truck driver serves this service stop, the helping agent would travel to $1$, service it, and return. The truck driver and helping agent would then travel together to $2$, and the truck driver would service it while the helping agent remains idle. The total cost of the look-ahead heuristic in this instance is $t(0) + 2 + t(2) = 19$ time units. \\
 
-A better solution would be to dispatch the helper vehicle at $0$ while the primary vehicle travels and services the station located at $2$. The primary vehicle could then return to pick up the helper vehicle at $0$, they could both travel to $1$, service it, and finally travel to $2$ to finish. The total cost of this solution would be $t(0) + 1 + t(1) + 1 = 13$ time units. \\
+Depending on the value of the parameter $\alpha$, a better solution could be to have the truck driver service the service stop at $0$ while the helping agent travels and services the service stop located at $2$. The helping agent could then return to pick up the truck driver at $0$, they could both travel to $1$, service it, and finally travel to $2$ to finish. The total cost of this solution would be $t(0) + 1 + t(1) + 1 = 13$ time units. \\
 
-In summary, we see that the lookahead heuristic can be improved by not just servicing subsequent service stops in order by their distance to the current service stop but instead servicing subsequent service stops so that the time spent by the primary vehicle is approximately equal to that of the helper vehicle. Fundamentally, the problem can be reduced to finding a subset of numbers that sum up closest to a target number. 
+In summary, we see that the lookahead heuristic can be improved by not just servicing subsequent service stops in order by their distance to the current service stop but instead servicing subsequent service stops so that the time spent by the primary vehicle is approximately equal to that of the helping agent. Fundamentally, the problem can be reduced to finding a subset of numbers that sum up closest to a target number. 
 
 \subsubsection{Heuristic}
 The knapsack look-ahead heuristic operates as follows:
 
 \begin{enumerate}
     \item The truck driver and helping agent begin in the truck located at the point $(-r, 0)$.
-    \item The truck driver and helping agent travel together in the clockwise direction. While at least one unvisited service stop exists, the two vehicles travel together along the one-dimensional number line to the next unserved service stop $a_i$. There are now two cases to consider:
-    \begin{enumerate}
-        \item If $a_i \not \in S'$, then we service the service stop immediately using the primary vehicle. In the meantime, the helper vehicle remains idle for $t(a_i)$ minutes as it cannot move on its own.
-        \item If $a_i \in S'$, then we greedily exercise our option to dispatch the helper vehicle. In the meantime, we ``look ahead" with our primary vehicle, and we service a subset of service stops ahead of the current one such that the time spent (round-trip time plus service time) by the primary vehicle is as close as possible (but not more than) $t(a_i)$. That is, the helper vehicle's idle time does not increase at all. 
-    \end{enumerate}
+    \item The truck driver and helping agent travel together in the clockwise direction. If there is an unserved service stop $a_i$, the truck driver and helping agent travel to it.
+		\item We greedily exercise our option to use the truck driver to service the service stop. In the meantime, we ``look ahead" with our primary vehicle, and we service a subset of service stops further in the clockwise direction such that the time spent (round-trip time plus service time) by the helping agent is as close as possible (but not more than) $t(a_i)$. That is, the helping agent's idle time does not increase at all. 
 \end{enumerate}
 
+\iffalse
+TODO: discuss benefits
+\fi
 
 
 \subsection{Neighbor-Expansion Heuristic}
 \subsubsection{Motivation}
 The next heuristic we present is the \vocab{neighbor-expansion heuristic}, which is a greedy algorithm that uses some elements from both the look-ahead and knapsack look-ahead heuristics. \\
 
-The preceding two heuristics we discussed both sought to decrease the total time spent by servicing some set of customers by ``looking ahead" with the primary vehicle while the helper vehicle stayed behind at a particular service stop. \\
+The preceding two heuristics we discussed both sought to decrease the total time spent by servicing some set of customers by ``looking ahead" with the primary vehicle while the helping agent stayed behind at a particular service stop. \\
 
-Unfortunately, not every optimal solution takes this form. It can be disadvantageous for us to immediately dispatch the primary vehicle at service stops where the helper vehicle cannot be dispatched. Consider the following example:
+Unfortunately, not every optimal solution takes this form. It can be disadvantageous for us to immediately dispatch the truck driver at service stops and only have the helping agent move forward. Consider the following line segment that could be a part of a larger VRPWH on a Circle instance:
 
 \begin{figure}[H]
   \centering
@@ -406,36 +397,42 @@ Unfortunately, not every optimal solution takes this form. It can be disadvantag
   \caption{Neighborhood-Expansion Example}
 \end{figure}
 
-Suppose we have the option to dispatch the helper vehicle at both $0$ and $1$. If $t(0) = 5$ and $t(1) = 15$, then dropping the helper vehicle off at $1$, returning to service $0$, and returning to $1$ would produce a solution that takes $16$ time units. On the other hand, both the look-ahead heuristic and the knapsack look-ahead heuristic would take $21$ time units. This demonstrates that it may not always be optimal to ``look ahead" with the primary vehicle while the helper vehicle stays behind. \\
+Suppose we have the option to dispatch the helper vehicle at both $0$ and $1$ with $t(0) = 5$ and $t(1) = 15$. Having the truck driver drop the helping agent off at $1$, returning to service stop $0$ and servicing it, and returning to $1$ would produce a solution that takes $16$ time units. On the other hand, both the look-ahead heuristic and the knapsack look-ahead heuristic would take $21$ time units. This demonstrates that it may not always be optimal to ``look ahead" with the primary vehicle while the helper vehicle stays behind. \\
 
-In order to combat this issue, we propose a heuristic that considers both ``looking ahead" and ``looking behind" as possible choices. 
+In order to combat the shortcomings of the look-ahead and knapsack heuristics, we propose a new heuristic that considers both ``looking ahead" and ``looking behind" as possible choices. 
 
 \subsubsection{Heuristic}
 Before introducing the neighbor-expansion heuristic, we introduce some terminology.
 
 \begin{definition}
-For each service stop $a_i \in S'$ at which the helper vehicle can be dispatched at, we define a set of \vocab{neighbors} $N_{a_{i}}$. The set $N_{a_{i}}$ contains the set of service stops for which it is possible for the the primary vehicle to visit, service, and return to $a_i$ without exceeding a total time of $t(a_i)$.  
+For each service stop $a_i \in S$, we define a set of \vocab{neighbors} $N_{a_{i}}$. The set $N_{a_{i}}$ contains the set of service stops for which it is possible for the the helping agent to walk to, service, and return to $a_i$ without exceeding a total time of $t(a_i)$.  
 \end{definition}
 
-Essentially, the neighbors of a service stop $a_i \in S'$ represent the set of service stops that the primary vehicle can service while the helper vehicle services $a_i$ without leaving the helper vehicle idle at $a_i$. \\
+Essentially, the neighbors of a service stop $a_i \in S'$ represent the set of service stops that the helping agent can potentially service while the truck driver services $a_i$ without increasing the idle time of the truck driver. \\ 
 
 The neighbor-expansion heuristic works as follows:
 
 \begin{enumerate}
     \item We begin with a set $A = \{a_1, a_2, \ldots, a_n\}$ containing every service stop.
-    \item While there are service stops in $A$ that can be serviced by the helper vehicle (i.e., while $A \cap S' \neq \emptyset$), we perform the following:
+    \item While there are service stops in $A$, we perform the following: 
     \begin{enumerate}
-        \item For every service stop $a_i \in A \cap S'$, we compute the set of neighbors $N_{a_{i}}$. 
-        \item Next, for each set of neighbors $N_{a_i}$ we compute a subset $N'_{a_i} \subseteq N_{a_i}$ of neighbors such that servicing all of the customers in $N'_{a_i}$ (with travel costs included) is as large as possible but does not exceed $t(a_i)$.  
+        \item For every service stop $a_i \in A$, we compute the set of neighbors $N_{a_{i}}$. 
+        \item Next, for each set of neighbors $N_{a_i}$ we compute a subset $N'_{a_i} \subseteq N_{a_i}$ of neighbors such that servicing all of the customers in $N'_{a_i}$ (with travel costs included) is as large as possible but does not exceed $t(a_i)$. This is done in a fashion similar to the knapsack heuristic.
         \item Among all of the computed values, we take the $a_i$ for which the difference between $t(a_i)$ and the time needed to service all of the customers in $N'_{a_i}$ is minimal. Ties are broken arbitrarily. 
-        \item We remove both $a_i$ and all of the service stops in $N'_{a_i}$ from $A$, and we repeat this process until $A \cap S' = \emptyset.$ 
+				\item We remove both $a_i$ and all of the service stops in $N'_{a_i}$ from $A$, and we repeat this process until $A \cap S' = \emptyset.$ The set $N'_{a_i}$ represents the set of service stops that the helping agent will service while the truck driver services $a_i$. 
     \end{enumerate}
 \end{enumerate}
 
-\noindent Upon termination, the set $A$ represents the service stops that should be served immediately when the primary and helper vehicles visit them for the first time. On the other hand, when we visit some $a_i \not \in A$ for the first time, we should not immediately process it. Instead, when we visit the service stop $a_k$ for which $a_i \in N_{a_k}$ holds, then we should dispatch the helper vehicle at $a_k$, and the primary vehicle should service every service stop in $N_{a_k}$, which would include servicing $a_i$.  \\
+\noindent Upon termination, the set $A$ will be empty. Our solution is constructed as follows:
+
+\begin{enumerate}
+	\item The truck driver and helping agent begin at the point $(-r, 0)$ and travel in the clockwise direction.
+	\item	When the truck driver and helping agent encounter some service stop $a_i$ that belongs to some $N'_{a_k}$, we should \textit{not} process it immediately. Instead, when we visit $a_k$, the helping agent will be dispatched to service all of the service stops in $N'_{a_k}$. The service stop $a_i$ will be serviced at that point.
+	\item When the truck driver and helping agent encounter some service stop $a_i$ that does \textit{not} belong to some $N'_{a_k}$, the service stop $a_i$ should be serviced immediately. 
+\end{enumerate}
 
 \subsubsection{Demonstration}
-As a brief demonstration, consider an instance of the VRPWH Problem on a Circle (curvature not shown) in which the time required to travel one unit of distance equals one time unit:
+As a brief demonstration, consider an instance of the VRPWH on a Circle with $\alpha = 1$ in which the time required to travel one unit of distance equals one time unit:
 
 \begin{figure}[H]
   \centering
@@ -446,26 +443,25 @@ As a brief demonstration, consider an instance of the VRPWH Problem on a Circle 
     \foreach \i in {1, 4, 5, 9, 7}% points on line
       \fill[red] (\i,0) circle (1 mm);
   \end{tikzpicture}
-  \caption{Neighborhood-Expansion Demonstration}
+  \caption{Neighborhood-Expansion Demonstration. Curvature of the circle is not shown.}
 \end{figure}
 
 \noindent For simplicity, we assume the helper vehicle can be dispatched at any one of the four service stops. Furthermore, suppose we have $t(1) = 10, t(4) = 7, t(5) = 12, t(7) = 1, t(9) = 1$.  The neighbor-expansion heuristic proceeds as follows:
 
 \begin{enumerate}
-    \item First, we initialize a set $A = \{1, 4, 5, 7, 9\}$ containing the locations of our service stops.
-    \item Next, we compute the set of neighbors for each of the four service stops. We have $N_1 = \emptyset$ (we cannot travel, service, and return from some other service stop while the helper vehicle remains at $1$), $N_4 = \{7\}, N_5 = \{4, 7, 9\}, N_7 = \emptyset$, and $N_9 = \emptyset$. 
+    \item First, we initialize $A = \{1, 4, 5, 7, 9\}$ containing the locations of our service stops.
+		\item Next, we compute the set of neighbors for each of the four service stops. We have $N_1 = \emptyset$ (the helping agent does not have enough time to travel, service, and return to this service station stop in fewer than $t(1) = 10$ time units), $N_4 = \{7\}, N_5 = \{4, 7, 9\}, N_7 = \emptyset$, and $N_9 = \emptyset$. 
     \item Subsequently, for each $N_{a_i}$, we compute a subset $N'_{a_i}$ of service stops for which the time needed to service all of the customers in $N'_{a_i}$ (with travel costs included) is as large as possible but does not exceed $t(a_i)$. One can find $N'_{1} = \emptyset, N'_{4} = \{7\}, N'_{5} = \{4\}, N_{7} = \emptyset$, and $N_{9} = \emptyset$. Among all of the computed values, we select service stop $4$ since $|t(4) - 3 - t(7) - 3| = 0$. From here, we remove $4$ and $7$ from $A$, and we iterate again. 
     \item In the second iteration, we follow the same procedure, and we end up removing $5$ and $9$ (the other neighbor sets are empty). 
     \item The final solution operates generated by this heuristic operates as follows:
     \begin{enumerate}
-        \item The primary and helper vehicles begin at $0$. 
-        \item The primary and helper vehicles move together to $1$ at which the primary vehicle immediately spends $t(1) = 10$ uninterrupted minutes servicing the required demand.
-        \item The primary and helper vehicle move together to the service stop at $4$. The helper vehicle is dispatched here while the primary vehicle travels to $7$, services $7$, and returns to $4$.
-        \item The primary and helper vehicle move together to the service stop at $5$. The helper vehicle is dispatched here while the primary vehicle travels to $9$, services $9$, and returns to $5$.
-        \item The primary and helper vehicle navigate to $10$. All of the demands have been satisfied. 
+        \item The truck driver and helping agent begin at point $0$. 
+        \item The truck driver and helping agent move together to $1$ at which the truck driver immediately spends $t(1) = 10$ uninterrupted minutes servicing the customer.
+        \item The truck driver and helping agent move together to the service stop at $4$. The truck driver is dispatched here while the helping agent travels to $7$, services $7$, and returns to $4$.
+        \item The truck driver and helper agent move together to the service stop at $5$. The truck driver is dispatched here while the helping agent travels to $9$, services $9$, and returns to $5$.
+        \item The truck driver and helping agent navigate to $10$. All of the demands have been satisfied. 
     \end{enumerate}
 \end{enumerate}
-
 
 
 \subsection{Randomized-Expansion Heuristic}
@@ -485,7 +481,7 @@ The randomized-expansion heuristic works as follows:
 
 \begin{enumerate}
     \item We begin with a set $A = \{a_1, a_2, \ldots, a_n\}$ containing every service stop.
-    \item While there are service stops in $A$ that can be serviced by the helper vehicle (i.e., while $A \subseteq S' \neq \emptyset)$, we perform the following:
+		\item While $A$ is nonempty (i.e., while there are service stops that need to be serviced), we perform the following:
     \begin{enumerate}
         \item For each service stop $a_i \in A \cap S'$, we compute the set of neighbors $N_{a_i}$.
         \item Next, for each set of neighbors $N_{a_i}$, we generate a random subset $N'_{a_i}$ of $N_{a_i}$. If the time required to service all of the service stops (with travel costs included) exceeds $t(a_i)$, we discard the generated subset. This step is guaranteed to terminate because any singleton would satisfy the desired properties.\footnote{The expected number of steps needed to terminate is polynomial in $n$.}. 
@@ -493,7 +489,7 @@ The randomized-expansion heuristic works as follows:
         \item Steps $a, b, c$ are repeated a fixed number of times. Among all of the computed absolute differences, we take the $a_i$ and $N'_{a_i}$ for which the absolute difference was minimal. 
         \item We remove both $a_i$ and all of the service stops in $N'_{a_i}$, and we repeat Step $2$ until $A \cap S' = \emptyset$.
     \end{enumerate}
-    \item At this point, we can construct a solution just as we would in the neighbor-expansion heuristic. 
+    \item At this point, we construct a solution as we would in the neighbor-expansion heuristic. 
     \item We can repeat this entire algorithm several times, and we can take the best objective value found from all repetitions. 
 \end{enumerate}
 
@@ -597,7 +593,7 @@ In order to benchmark the proposed algorithms, we generated random instances of 
 
 On the other hand, the service times of the $N$ service stops were generated according to a ``restricted" $N(\mu, \sigma^2)$ distribution in which service times above $2\mu$ or below $0$ were regenerated in order to preserve symmetry and avoid negative service times. In each instance, a parameter $p$ was also specified, which was used to denote the probability of any one service stop belonging to the subset of service stops that the helper vehicle can be dispatched at. Each computed cost is calculated by averaging over $10^{6}$ simulations each. \\
 
-\begin{figure}[h]
+\begin{figure}[H]
 \centering
  \begin{longtable}{|c|c|c|c|c|c|c|c|c|c|c|} 
  \hline

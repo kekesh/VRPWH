@@ -12,6 +12,7 @@ def knapsack(instance: VRPWHCircleInstance):
     instance.service_stops = sorted(instance.service_stops)
     serviced = set()
     cost = 2 * math.pi * instance.radius
+    alpha = instance.alpha
     truck_location = 0
 
     
@@ -27,7 +28,7 @@ def knapsack(instance: VRPWHCircleInstance):
         universal_set = []
         stops_left = instance.num_points - truck_location - 1
         for trying in range(1, stops_left + 1):
-            distance_cost = ServiceStop.distance(truck_service_stop, instance.service_stops[trying + truck_location], instance.radius)
+            distance_cost = alpha * ServiceStop.distance(truck_service_stop, instance.service_stops[trying + truck_location], instance.radius)
             service_cost = instance.service_stops[trying + truck_location].service_time
             if distance_cost + service_cost <= idle_time:
                 if instance.service_stops[trying + truck_location].flag:
@@ -43,7 +44,7 @@ def knapsack(instance: VRPWHCircleInstance):
             for x in range(set_size):
                 if (bitmask & (1 << x)):
                     subset.append(universal_set[x])
-            distance_cost = 2 * ServiceStop.distance(truck_service_stop, subset[-1], instance.radius)
+            distance_cost = alpha * 2 * ServiceStop.distance(truck_service_stop, subset[-1], instance.radius)
             service_cost = sum([x.service_time for x in subset])
             if service_cost + distance_cost <= idle_time and idle_time - service_cost - distance_cost < waste:
                 waste = idle_time - service_cost - distance_cost
@@ -52,9 +53,7 @@ def knapsack(instance: VRPWHCircleInstance):
         # We've found the best "skippable" subset
         for service_stop in best:
             instance.remove_service_stop(service_stop)
-
         truck_location += 1
-
 
         
     return cost
