@@ -1,4 +1,4 @@
-from .utilities import *
+from utilities import *
 import numpy as np
 import logging
 import math
@@ -12,9 +12,7 @@ def neighbor_expansion(instance: VRPWHCircleInstance):
     # While there are service stops that need to be serviced...
     while A: 
         # Compute the set of neighbors for each service stop in A.
-        print("A is now ", [str(x) for x in A])
         n = len(A)
-
         global_best_subset = []
         global_best_waste = 1e9
         global_best_idx = -1
@@ -41,7 +39,6 @@ def neighbor_expansion(instance: VRPWHCircleInstance):
                 j += 1
 
 
-            print("Neighbors for " + str(A[idx]) + " is ", [str(x) for x in neighbors])
 
             # We have the neighbors of A[idx].
             # Compute the "best subset" we can get with these neighbors.
@@ -58,19 +55,16 @@ def neighbor_expansion(instance: VRPWHCircleInstance):
                 subset = sorted(subset)
 
                 # Compute distance costs
-                print("Distance cost for ", str(A[idx]), " to ", str(subset[0]), " is ", ServiceStop.distance(A[idx], subset[0], instance.radius))
                 distance_cost = 2 * alpha * ServiceStop.distance(A[idx], subset[0], instance.radius) 
                 if len(subset) != 1:
                     distance_cost += 2 * alpha * ServiceStop.distance(A[idx], subset[-1], instance.radius)
 
                     
-                print("Distance cost + service_cost = ", distance_cost + service_cost)
                 if distance_cost + service_cost <= capacity and capacity - distance_cost - service_cost < waste:
                     # This is a feasible solution!
                     best = subset
                     waste = capacity - distance_cost - service_cost
 
-            print("The best subset for ", str(A[idx]), " is ", [str(x) for x in best], " since it provides a waste of ", waste, " since capacity = ", capacity, " and distance cost is ", distance_cost, " and service_cost is ", service_cost)
 
 
             # Update global values
@@ -91,19 +85,5 @@ def neighbor_expansion(instance: VRPWHCircleInstance):
             for service_stop in global_best_subset:
                 instance.remove_service_stop(service_stop)
         A = instance.service_stops
-        print("The remaining subset is A = ", [str(x) for x in A])
 
     return solution_cost
-
-instance = VRPWHCircleInstance(
-                                    num_points = 3,
-                                    radius = 1,
-                                    service_stops =
-                                    [
-    
-                                       ServiceStop(x = -math.sqrt(3) / 2, y = 1 / 2, service_time = 20, flag = True),
-                                       ServiceStop(x = -math.sqrt(2) / 2, y = math.sqrt(2) / 2, service_time = 9, flag = True),
-                                       ServiceStop(x = 0, y = 1, service_time = 10, flag = True)
-                                    ],
-                                    alpha = 1,
-                                 )

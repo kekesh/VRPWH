@@ -2,7 +2,9 @@ import numpy as np
 import functools
 import itertools
 import math
+import copy
 from random import random
+
 
 
 class ServiceStop:
@@ -58,7 +60,7 @@ class VRPWHCircleInstance:
     assert(self.num_points == len(self.service_stops))
 
   def __str__(self):
-    rep = "Radius: {}, Alpha: {}, p: {}, N: {}".format(self.radius, self.alpha, self.p, self.num_points)
+    rep = "Radius: {}, Alpha: {}, N: {}".format(self.radius, self.alpha, self.num_points)
     for service_stop in self.service_stops:
         rep += "\n" + str(service_stop)
     return rep
@@ -74,6 +76,10 @@ class VRPWHCircleInstance:
       except:
           # Item does not exist.
           pass
+
+  @staticmethod
+  def deep_copy(instance):
+      return VRPWHCircleInstance(num_points=instance.num_points, radius=instance.radius, service_stops=copy.deepcopy(instance.service_stops), alpha=instance.alpha)
               
 
 def generate_random_service_stop(r, mu, sigma, p) -> ServiceStop:
@@ -102,6 +108,7 @@ def generate_random_vrpwh_instance(num_points, radius, mu, sigma, alpha, p) -> V
     Generate a random instance of the VRPWH problem.
     The service time of the service stop is drawn from a truncated N(mu, sigma^2) distribution (i.e., we redraw until X >= 0 and X >= 2 * mu)
     '''
+    sigma = math.sqrt(sigma) 
     service_stops = []
     for _ in itertools.repeat(None, num_points):
         service_stops.append(generate_random_service_stop(radius, mu, alpha, p))

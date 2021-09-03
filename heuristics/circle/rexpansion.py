@@ -4,7 +4,6 @@ from numpy import random
 from numpy.random import uniform
 import logging
 import math
-from pdb import set_trace; 
 
 def randomized_expansion(instance: VRPWHCircleInstance):
     """ The truck drives in the clockwise direction. We compute the set of neighbors for each service stop. """
@@ -16,7 +15,6 @@ def randomized_expansion(instance: VRPWHCircleInstance):
     while A: 
         # Compute the set of neighbors for each service stop in A.
         n = len(A)
-
         global_best_subset = []
         global_best_waste = 1e9
         global_best_idx = -1
@@ -53,7 +51,7 @@ def randomized_expansion(instance: VRPWHCircleInstance):
                 for x in range(set_size):
                     coin = uniform(0, 1) 
                     bitmask += (coin >= 0.50)
-                    if x != n - 1:
+                    if x != set_size - 1:
                         bitmask <<= 1
 
                 # cost of both
@@ -96,18 +94,3 @@ def randomized_expansion(instance: VRPWHCircleInstance):
         A = instance.service_stops
 
     return solution_cost
-
-instance = VRPWHCircleInstance(
-                                    num_points = 3,
-                                    radius = 1,
-                                    service_stops =
-                                    [
-    
-                                       ServiceStop(x = -math.sqrt(3) / 2, y = 1 / 2, service_time = 20, flag = True),
-                                       ServiceStop(x = -math.sqrt(2) / 2, y = math.sqrt(2) / 2, service_time = 9, flag = True),
-                                       ServiceStop(x = 0, y = 1, service_time = 10, flag = True)
-                                    ],
-                                    alpha = 1,
-                                 )
-
-print(randomized_expansion(instance))

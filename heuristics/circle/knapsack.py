@@ -1,4 +1,4 @@
-from .utilities import *
+from utilities import *
 import numpy as np
 import logging
 import math
@@ -21,7 +21,6 @@ def knapsack(instance: VRPWHCircleInstance):
         truck_service_stop = instance.service_stops[truck_location]
         idle_time = truck_service_stop.service_time
         cost += idle_time
-
 
         # How close can we sum up to #[idle_time] (including distance traveled)?
         # To get the set of "candidates," we can first find the furthest service stop we can take.

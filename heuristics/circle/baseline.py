@@ -1,4 +1,4 @@
-from .utilities import *
+from utilities import *
 import numpy as np
 import logging
 import math

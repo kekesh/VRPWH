@@ -68,7 +68,7 @@ In this problem, we seek to find the minimum time required to satisfy customers 
 \noindent We can model the problem by representing the $n$ service stops as points $p_1, p_2, \ldots, p_n$ on a circular path in the real plane. With this circular representation, an instance of the VRPWH problem is fully defined by the following parameters:
 
 \begin{enumerate}
-    \item An radius parameter $r$, which is used to describe the circumference of the underlying circle.
+    \item A radius parameter $r$, which is used to describe the circumference of the underlying circle.
     \item A set of service stops $S = \{p_1, \ldots, p_n\}$, where $p_i$ denotes the location of the $i^{\text{th}}$ service stop.
     \item A time function $t : S \mapsto \mathbb{R}$, which maps each service stop to the number of time units required to service the customer at that stop.
     \item A parameter $\alpha$ used to describe the factor by which the helping agent's walking speed is slower than the truck driver's driving speed. In other words, if the truck drives at a speed $v$, then the helping agent's walking speed is $v/\alpha$.
@@ -361,7 +361,7 @@ The look-ahead heuristic would dispatch the truck driver vehicle at $0$. While t
 
 Depending on the value of the parameter $\alpha$, a better solution could be to have the truck driver service the service stop at $0$ while the helping agent travels and services the service stop located at $2$. The helping agent could then return to pick up the truck driver at $0$, they could both travel to $1$, service it, and finally travel to $2$ to finish. The total cost of this solution would be $t(0) + 1 + t(1) + 1 = 13$ time units. \\
 
-In summary, we see that the lookahead heuristic can be improved by not just servicing subsequent service stops in order by their distance to the current service stop but instead servicing subsequent service stops so that the time spent by the primary vehicle is approximately equal to that of the helping agent. Fundamentally, the problem can be reduced to finding a subset of numbers that sum up closest to a target number. 
+In summary, we see that the lookahead heuristic can be improved by not just servicing subsequent service stops in order by their distance to the current service stop but instead servicing subsequent service stops so that the time spent by the primary driver is approximately equal to that of the helping agent. Fundamentally, the problem can be reduced to finding a subset of numbers that sum up closest to a target number. 
 
 \subsubsection{Heuristic}
 The knapsack look-ahead heuristic operates as follows:
@@ -589,6 +589,9 @@ A formulation is provided below:
 
 
 \section{Computational Results}
+
+\section{Results}
+
 In order to benchmark the proposed algorithms, we generated random instances of the VRPWH on a Circle. For a fixed radius $r > 0$ and a fixed number of points $N$, the locations of the $N$ service stops were generated randomly on the circle $x^2 + y^2 = r^2$. More precisely, this is done by generating a random angle $\theta$ by sampling a uniform random variable $Z \sim U(0, 1)$ and setting $\theta = 2\pi Z$. From here, we can easily find our random point $(x, y)$ on the circumference of the circle by setting $x = r\cos(\theta)$ and $y = r\sin(\theta)$. \\
 
 On the other hand, the service times of the $N$ service stops were generated according to a ``restricted" $N(\mu, \sigma^2)$ distribution in which service times above $2\mu$ or below $0$ were regenerated in order to preserve symmetry and avoid negative service times. In each instance, a parameter $p$ was also specified, which was used to denote the probability of any one service stop belonging to the subset of service stops that the helper vehicle can be dispatched at. Each computed cost is calculated by averaging over $10^{6}$ simulations each. \\
@@ -599,36 +602,38 @@ On the other hand, the service times of the $N$ service stops were generated acc
  \hline
  $N$ & $r$ & $p$ & $\mu$ & $\sigma^2$ & $\alpha$ & Baseline & Lookahead & Knapsack & NE & RE \\
  \hline 
-  $10$ & $1$ & $0$ & $1$ & $1$ & $1$ & $2.351$ & $1.641$ & $1.476$ & $1.752$ & $1.380$\\ 
+  $10$ & $1$ & $0$ & $1$ & $1$ & $1$ & $16.277$ & $16.277$ & $16.277$ & $14.825$ & $14.955$\\ 
  \hline
- $10$ & $1$ & $0.25$ & $1$ & $1$ & $1$ & $2.359$ & $1.624$ & $1.479$ & $1.877$ & $1.291$ \\
+ $10$ & $1$ & $0.25$ & $1$ & $1$ & $1$ & $32.574$ & $32.184$ & $32.365$ & $29.666$ & $29.926$ \\
  \hline
- $10$ & $1$ & $0.50$ & $1$ & $1$ & $1$ & $2.416$ & $1.681$ & $1.424$ & $1.829$ & $1.400$ \\
+ $10$ & $1$ & $0.50$ & $1$ & $1$ & $1$ & $48.889$ & $47.790$ & $48.277$ & $44.534$ & $44.927$ \\
  \hline
- $10$ & $1$ & $0.75$ & $1$ & $1$ & $1$ & $2.473$ & $1.760$ & $1.592$ & $1.843$ & $1.452$ \\
+ $10$ & $1$ & $0.75$ & $1$ & $1$ & $1$ & $65.180$ & $63.101$ & $63.985$ & $59.393$ & $59.916$ \\
  \hline
- $10$ & $1$ & $1$ & $1$ & $1$ & $1$ & $2.465$ & $1.737$ & $1.539$ & $1.821$ & $1.475$ \\ 
+ $10$ & $1$ & $1$ & $1$ & $1$ & $1$ & $81.468$ & $78.192$ & $79.518$ & $74.241$ & $74.896$ \\ 
  \hline
- $25$ & $1$ & $0$ & $2$ & $1$ & $4$ & $10.173$ & $7.745$ & $7.126$ & $8.076$ & $5.885$ \\
+ $25$ & $1$ & $0$ & $2$ & $1$ & $4$ & $137.739$ & $134.462$ & $135.789$ & $122.319$ & $123.069$ \\
  \hline
- $25$ & $1$ & $0.25$ & $2$ & $1$ & $4$ & $10.6513$ & $8.271$ & $8.425$ & $8.439$ & $6.146$ \\
+ $25$ & $1$ & $0.25$ & $2$ & $1$ & $4$ & $194.030$ & $188.837$ & $191.005$ & $170.438$ & $171.292$ \\
  \hline
- $25$ & $1$ & $0.50$ & $2$ & $1$ & $4$ & $10.295$ & $7.881$ & $6.095$ & $7.909$ & $5.896$ \\
+ $25$ & $1$ & $0.50$ & $2$ & $1$ & $4$ & $250.420$ & $241.678$ & $245.323$ & $218.603$ & $219.560$ \\
  \hline
- $25$ & $1$ & $0.75$ & $2$ & $1$ & $4$ & $10.582$ & $8.191$ & $6.794$ & $8.104$ & $6.054$ \\
+ $25$ & $1$ & $0.75$ & $2$ & $1$ & $4$ & $306.652$ & $292.994$ & $298.562$ & $266.637$ & $267.676$ \\
  \hline
- $25$ & $1$ & $1$ & $2$  & $1$ & $4$ & $10.298$ & $7.871$ & $8.221$ & $7.812$ & $5.945$ \\
+ $25$ & $1$ & $1$ & $2$  & $1$ & $4$ & $362.934$ & $343.226$ & $350.978$ & $314.746$ & $315.899$ \\
  \hline
- $50$ & $1$ & $0$ & $3$ & $1$ & $2$ & $24.523$ & $17.612$ & $16.783$ & $18.724$ & $14.045$ \\
+ $50$ & $1$ & $0$ & $3$ & $1$ & $2$ & $519.123$ & $499.414$ & $507.166$ & $425.126$ & $424.158$ \\
  \hline
- $50$ & $1$ & $0.25$ & $3$ & $1$ & $2$ & $24.345$ & $17.535$ & $15.504$ & $18.625$ & $13.895$ \\
+ $50$ & $1$ & $0.25$ & $3$ & $1$ & $2$ & $675.370$ & $639.488$ & $653.169$ & $535.478$ & $532.364$ \\
  \hline
- $50$ & $1$ & $0.50$ & $3$ & $1$ & $2$ & $24.659$ & $17.791$ & $15.071$ & $18.925$ & $14.406$ \\
+ $50$ & $1$ & $0.50$ & $3$ & $1$ & $2$ & $831.623$ & $770.076$ & $791.248$ & $645.841$ & $640.581$ \\
  \hline
- $50$ & $1$ & $0.75$ & $3$ & $1$ & $2$ & $24.485$ & $17.713$ & $15.022$ & $18.723$ & $13.997$ \\
+ $50$ & $1$ & $0.75$ & $3$ & $1$ & $2$ & $987.823$ & $895.194$ & $922.998$ & $756.159$ & $748.653$ \\
  \hline
- $50$ & $1$ & $1$ & $3$ & $1$ & $2$ & $24.713$ & $17.822$ & $15.191$ & $18.957$ & $14.081$ \\
+ $50$ & $1$ & $1$ & $3$ & $1$ & $2$ & $1144.158$ & $1016.848$ & $1049.867$ & $866.607$ & $856.817$ \\
  \hline
+
+ \iffalse
  $75$ & $1$ & $0$ & $5$ & $1$ & $\frac{4}{3}$ & $43.829$ & $26.052$ & $57.642$ & $33.586$ & $24.999$ \\
  \hline
  $75$ & $1$ & $0.25$ & $5$ & $1$ & $\frac{4}{3}$ & $43.905$ & $26.111$ & $24.342$ & $23.610$ & $21.067$ \\
@@ -649,20 +654,26 @@ On the other hand, the service times of the $N$ service stops were generated acc
  \hline
  $100$ & $1$ & $1$ & $10$  & $1$ & $\infty$ & $78.746$ & $29.521$ & $28.192$ & $43.421$ & $30.991$ \\
  \hline
+ \fi
+
  \end{longtable}  
  \caption{Performance of Heuristics on Random Instances of the VRPWH Problem. $N$ denotes the number of service stations; $r$ is the radius of the underlying circle; $p$ denotes the probability of a fixed service stop belonging to the subset of service stops that the helping agent can service; $\mu$ and $\sigma^2$ denote the mean and variance of the underlying normal distribution used to generate the service times of each stop; $\alpha$ denotes the constant factor by which the helping agent walks slower than the truck.}
 \end{figure}
 
-From the computational results, it is immediately clear that all of the proposed heuristics outperform the baseline heuristic. This is expected since the baseline heuristic does not utilize the helping agent at all; it simply provides us with an initial value that we can use to compare to the other heuristics.  \\
+\subsection{Analysis of Results}
+
+From the computational results, we first note that all of the proposed heuristics outperform the baseline heuristic. This is expected since the baseline heuristic does not utilize the helping agent at all; it simply provides us with an initial value that we can use to compare to the other heuristics. Any heuristic that utilizes the helping agent can only improve upon this upper bound. \\
+
+We next note that the knapsack heuristic is outperformed by the lookahead, neighborhood expansion, and randomized expansion heuristics. The fact that the lookahead heuristic seems to always outperform the knapsack heuristic is a seemingly surprising result as the knapsack heuristic will always consider the subsets of service stops that the helping agent will service in the lookahead heuristic as a feasible solution. Thus, the knapsack heuristic must be utilizing the helping agent in a manner that is locally optimal at the time at which the decision is made but does not lead to a globally optimal solution. We conjecture that having the helping agent go too far ahead of the the primary driver in order to provide service at a service stop early on in an instance may lead to inefficient solutions as it may become difficult to find service stops for the helping agent to provide service at later on in the instance. \\
 
 We see that the simple lookahead heuristic always outperformed the baseline heuristic but it never outperformed any of the other heuristic. Despite its poor performance relative to the other heuristics, the lookahead heuristic is not computationally intensive compared to the other heuristics. On the other hand, the knapsack heuristic typically outperforms the lookahead heuristic but it is extremely computationally intensive. This stems from the fact that the knapsack heuristic is a pseudopolynomial dynamic programming algorithm, and its asymptotic runtime grows according to the sum of the service demands. \\
 
-The neighbor expansion heuristic was also computationally intensive; however, it was not nearly as intensive as the knapsack heuristic. On most instances, it seemed to perform worse than both the lookahead and knapsack heuristics. Finally, the randomized expansion heuristic took a Monte Carlo approach, and it seems to perform the best out of all of the proposed heuristics. The running time of the randomized expansion heuristic typically fell between that of the neighbor expansion heuristic and the knapsack heuristic. 
+The neighbor expansion heuristic was also computationally intensive; however, it was not nearly as intensive as the knapsack heuristic. On most instances, it seemed to perform worse than both the lookahead and knapsack heuristics. Finally, the randomized expansion heuristic took a Monte Carlo approach, and it seems to perform the best out of all of the proposed heuristics. The running time of the randomized expansion heuristic typically fell between that of the neighbor expansion heuristic and the knapsack heuristic. \\
 
-% \section{Extensions (In progress)}
 
-% \subsection{Related Literature}
-% \section{Appendix}
+
+
+
 \appendix
 
 \newpage
